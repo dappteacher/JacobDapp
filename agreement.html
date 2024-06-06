@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Agreement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="This page created for testing">
+    <script src="web3.js"></script>
+    <script src="jquery.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous">
+    <style>
+        * {
+            text-align: center;
+        }
+
+        body {
+            background-color: lightgrey;
+        }
+
+        .textSize {
+            width: 400px;
+        }
+
+        div {
+            padding: 30px;
+            border-bottom: 4px black solid;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .alert {
+            color: red;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .back {
+            background-color: lightblue;
+        }
+    </style>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        //Stable USDT: 	0x0491FF016B8f72D8201db9497Be16244da636eF9    100,000
+
+        var agreementAddress = "0x0d1A28FB46eB58c46D41Bd88e6F39B88BF2E6A59";
+
+        var abi = [{ "inputs": [{ "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "symbol", "type": "string" }, { "internalType": "uint256", "name": "initialSupply", "type": "uint256" }, { "internalType": "address", "name": "deployer", "type": "address" }, { "internalType": "uint256", "name": "_quorum", "type": "uint256" }, { "internalType": "address[]", "name": "_operators", "type": "address[]" }, { "internalType": "uint256", "name": "_maxDelay", "type": "uint256" }, { "internalType": "uint256", "name": "_minLockDuration", "type": "uint256" }, { "internalType": "address", "name": "_stableCoin", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "newDeadline", "type": "uint256" }], "name": "DeadlineChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }], "name": "OperatorAdded", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }], "name": "OperatorRemoved", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "newRate", "type": "uint256" }], "name": "ProfitRateChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address", "name": "tokenAddress", "type": "address" }], "name": "TokenCreated", "type": "event" }, { "anonymous": false, "inputs": [], "name": "Unlocked", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address", "name": "voter", "type": "address" }], "name": "VoteCasted", "type": "event" }, { "inputs": [], "name": "castVote", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "deadline", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }], "name": "discharge", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "hasVoted", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "delayTimeInDays", "type": "uint256" }], "name": "increaseDeadline", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "isOperator", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "locked", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "maxDelay", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "profitRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "quorum", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }], "name": "receiveProfit", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "rate", "type": "uint256" }], "name": "setProfitRate", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "stableCoin", "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "token", "outputs": [{ "internalType": "contract ERC20Token", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "votes", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "votingStartDate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+
+        const newInstance = new ethers.Contract(agreementAddress, abi, provider);
+
+        const connectWithSinger = newInstance.connect(signer); function castVote() {
+            $('#lblCastVote').text("");
+            try {
+                $('#lblCastVote').text("Please wait ...");
+                connectWithSinger.castVote();
+                connectWithSinger.on("VoteCasted", function (result, error) {
+                    if (result) {
+                        $('#lblCastVote').text("Vote Casted");
+                    } else {
+                        $('#lblCastVote').text("Failed!");
+                    }
+                });
+            } catch (error) {
+                $('#lblCastVote').text(error);
+            }
+        }
+        function recieveProfit() {
+            var address = $("#txtRecieveAddress").val();
+            connectWithSinger.receiveProfit(address);
+        }
+        function setProfitRate() {
+            $('#lblProfitRate').text("");
+
+            var rate = parseInt($('#txtSetProfitRate').val());
+            try {
+                $('#lblProfitRate').text("Please wait...");
+                connectWithSinger.setProfitRate(rate);
+                connectWithSinger.on("ProfitRateChanged", function (result, error) {
+                    if (result) {
+                        $('#lblProfitRate').text("Rate set!");
+                    } else {
+                        $('#lblProfitRate').text(error);
+                    }
+                });
+            } catch (error) {
+                $('#lblProfitRate').text(error);
+            }
+        }
+        function increaseDeadline() {
+            $('#lblincreaseDeadLine').text("");
+
+            var deadline = parseInt($('#txtIncreaseDeadLine').val());
+            try {
+                $('#lblincreaseDeadLine').text("Please wait ...");
+                connectWithSinger.increaseDeadline(deadline);
+                connectWithSinger.on("DeadlineChanged", function (result, error) {
+                    if (result) {
+                        $('#lblincreaseDeadLine').text("Deadline Increased!");
+                    } else {
+                        $('#lblincreaseDeadLine').text(error);
+                    }
+                });
+            } catch (error) {
+                $('#lblincreaseDeadLine').text(error);
+            }
+        }
+        function discharge() {
+            $('#lblDischarge').text("");
+
+            var address = $('#txtDischarge').val();
+            try {
+                connectWithSinger.discharge(address);
+            } catch (error) {
+                $('#lblDischarge').text(error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Agreement (Binance)</h1>
+    <p class="alert">لطفا با دقت تمام، اطلاعات را وارد نمائید</p>
+    <div>
+        <label>0x6A839d9fc314f5b8f9D849916BA898c1590A003D</label><br/>
+        <label>0xaC074051e6bf884682655Cc4f450A3c3312Dddbd</label><br/>
+        <label>0x3424B1FB1d455aDB03C02CC5C78F14641C07ebc3</label>
+    </div>
+    <div class="back">
+        <label>Cast Vote</label>
+        <button class="btn btn-success" onclick="castVote()">Cast Vote</button>
+        <label id="lblCastVote"> </label>
+    </div>
+    <div>
+        <label>Set Profit Rate</label>
+        <input type="text" id="txtSetProfitRate" class="textSize" placeholder="Profit Rate" />
+        <button class="btn btn-success" onclick="setProfitRate()">Profit Rate</button>
+        <label id="lblProfitRate"> </label>
+    </div>
+    <div class="back">
+        <p class="alert">آدرسی را باید وارد کنید که قرار است استیبل کوین به آن منتقل شود</p>
+        <label>Recieve Profit</label>
+        <input type="text" id="txtRecieveAddress" class="textSize" placeholder="Address" />
+        <button class="btn btn-success" onclick="recieveProfit()">Recieve Profit</button>
+        <label id="lblRecieveProfit"> </label>
+    </div>
+    <div>
+        <label>Increase Dead Line</label>
+        <input type="text" id="txtIncreaseDeadLine" class="textSize" placeholder="Delay Time In Days" />
+        <button class="btn btn-success" onclick="increaseDeadline()">Increase DeadLine</button>
+        <label id="lblincreaseDeadLine"> </label>
+    </div>
+    <div class="back">
+        <label>Discharge</label>
+        <input type="text" id="txtDischarge" class="textSize" placeholder="address" />
+        <button class="btn btn-success" onclick="discharge()">Discharge</button>
+        <label id="lblDischarge"> </label>
+    </div>
+    <h3><a href="index.html">Home</a></h3>
+</body>
+
+</html>

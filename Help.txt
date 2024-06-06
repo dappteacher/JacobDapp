@@ -1,0 +1,8 @@
+git config --global user.name dappteacher
+git config --global user.email adelzadeh74@gmail.com
+git remote -v
+git remote set-url origin https://github.com/dappteacher/JacobDapp.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Factory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="This page created for testing">
+    <script src="web3.js"></script>
+    <script src="jquery.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous">
+    <style>
+        * {
+            text-align: center;
+        }
+
+        body {
+            background-color: lightgrey;
+        }
+
+        .textSize {
+            width: 400px;
+        }
+
+        div {
+            padding: 5px;
+            border-bottom: 4px black solid;
+        }
+
+        label,#base p {
+            font-weight: bold;
+        }
+        .back {
+            background-color: lightblue;
+        }
+    </style>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+
+        var contractAddress = "0xd2aE367b332B5c3E149836A372b180EaB7ac3fc2";
+
+        var abi = [{ "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address", "name": "agreementAddress", "type": "address" }], "name": "AgreementCreated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }], "name": "OperatorAdded", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }], "name": "OperatorRemoved", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "addOperator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "symbol", "type": "string" }, { "internalType": "uint256", "name": "initialSupply", "type": "uint256" }, { "internalType": "uint256", "name": "quorum", "type": "uint256" }, { "internalType": "address[]", "name": "voters", "type": "address[]" }, { "internalType": "uint256", "name": "maxDelay", "type": "uint256" }, { "internalType": "uint256", "name": "minLockDuration", "type": "uint256" }, { "internalType": "address", "name": "stableCoinAddress", "type": "address" }], "name": "deployNewAgreement", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "isOperator", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "removeOperator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }];
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const newInstance = new ethers.Contract(contractAddress, abi, provider);
+        const connectWithSinger = newInstance.connect(signer);
+
+        function addOperator() {
+            $('#lblAddOperator').text("");
+
+            var address = $('#txtAddAddress').val();
+            try {
+                connectWithSinger.addOperator(address);
+                connectWithSinger.on("OperatorAdded", function (result, error) {
+                    if (!error) {
+                        $('#lblAddOperator').text("The operator added");
+                    } else {
+                        $('#lblAddOperator').text(error);
+                    }
+                });
+            } catch (error) {
+                $('#lblAddOperator').text(error);
+            }
+        }
+        function removeOperator() {
+            $('#lblRemoveOperator').text("");
+
+            var address = $('#txtRemoveAddress').val();
+            try {
+                connectWithSinger.removeOperator(address);
+                connectWithSinger.on("OperatorRemoved", function (result, error) {
+                    if (!error) {
+                        $('#lblRemoveOperator').text("The operator added");
+                    } else {
+                        $('#lblRemoveOperator').text(error);
+                    }
+                });
+            } catch (error) {
+                $('#lblRemoveOperator').text(error);
+            }
+        }
+        function deployNewAgreement() {
+            $('#lblDeploy').text("Wait...");
+            var name = $('#txtName').val();
+            var symbol = $('#txtSymbol').val();
+            var initial = parseInt($('#txtInitialSupply').val());
+            var quorum = parseInt($('#txtQuorum').val());
+            var voters = JSON.parse($('#txtVoters').val());
+            var max = parseInt($('#txtMaxDelay').val());
+            var minLockDuration = parseInt($('#txtMinLock').val());
+            var stable = $('#txtStableCoinAddress').val();
+            try {
+                $('#lblDeploy').text("Please wait...");
+                connectWithSinger.deployNewAgreement(name, symbol, initial, quorum, voters, max, minLockDuration, stable);
+                connectWithSinger.on("AgreementCreated", function (result, error) {
+                    if (result) {
+                        $('#lblDeploy').text("The contract address is: " + result);
+                    } else {
+                        $('#lblDeploy').text("To add failed!");
+                    }
+                });
+            } catch (error) {
+                $('#lblDeploy').text("Disconnected!");
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Factory (Binance)</h1>
+    <div>
+        <label>0x6A839d9fc314f5b8f9D849916BA898c1590A003D</label><br/>
+        <label>0xaC074051e6bf884682655Cc4f450A3c3312Dddbd</label><br/>
+        <label>0x3424B1FB1d455aDB03C02CC5C78F14641C07ebc3</label>
+    </div>
+    <div class="back">
+        <h1>Deploy New Agreement</h1>
+        <p>Name:&nbsp;&nbsp;&nbsp;<input type="text" id="txtName" class="textSize" placeholder="Name" /></p>
+        <p>Symbol:&nbsp;&nbsp;&nbsp;<input type="text" id="txtSymbol" class="textSize" placeholder="Symbol" /></p>
+        <p>Initial Supply:&nbsp;&nbsp;&nbsp;<input type="text" id="txtInitialSupply" class="textSize" placeholder="Initial Supply" /></p>
+        <p>Quorum:&nbsp;&nbsp;&nbsp;<input type="text" id="txtQuorum" class="textSize" placeholder="Quorum" /></p>
+        <p>Voters:&nbsp;&nbsp;&nbsp;<input type="text" id="txtVoters" class="textSize" placeholder="Voters" /></p>
+        <p>Maximum Delay:&nbsp;&nbsp;&nbsp;<input type="text" id="txtMaxDelay" class="textSize" placeholder="Maximum Delay" /></p>
+        <p>Minimum Lock Duration:&nbsp;&nbsp;&nbsp;<input type="text" id="txtMinLock" class="textSize" placeholder="Minimum Lock Duration" /></p>
+        <p>Stable Coin Address:&nbsp;&nbsp;&nbsp;<input type="text" id="txtStableCoinAddress" class="textSize" placeholder="Stable Coin Address"
+            /></p>
+        <p><button class="btn btn-success" onclick="deployNewAgreement()">Deploy</button>
+            <label id="lblDeploy"> </label></p>
+    </div>
+    <div>
+        <label>Add operator</label>
+        <input type="text" id="txtAddAddress" class="textSize" placeholder="Address" />
+        <button class="btn btn-success" onclick="addOperator()">Add Operator</button>
+        <label id="lblAddOperator"> </label>
+    </div>
+    <div class="back">
+        <label>Remove operator</label>
+        <input type="text" id="txtRemoveAddress" class="textSize" placeholder="Address" />
+        <button class="btn btn-success" onclick="removeOperator()">Remove Operator</button>
+        <label id="lblRemoveOperator"> </label>
+    </div>
+    <h2><a href="index.html">Home</a></h2>
+</body>
+
+</html>
