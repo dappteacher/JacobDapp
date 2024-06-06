@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>ADR1 Token</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="This page created for testing">
+    <script src="web3.js"></script>
+    <script src="jquery.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous">
+    <style>
+        * {
+            text-align: center;
+        }
+
+        body {
+            background-color: lightgrey;
+        }
+
+        .textSize {
+            width: 400px;
+        }
+
+        div {
+            padding: 5px;
+            border-bottom: 4px black solid;
+        }
+
+        label {
+            font-weight: bold;
+        }
+        .back {
+            background-color: lightblue;
+        }
+    </style>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        var tokenAddress = "0x9A14557B8c613dF72F00a00125D5123Fe46FAC44";
+        var abi = [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Approval", "type": "event" }, { "inputs": [{ "internalType": "address", "name": "delegate", "type": "address" }, { "internalType": "uint256", "name": "numTokens", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "receiver", "type": "address" }, { "internalType": "uint256", "name": "numTokens", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "buyer", "type": "address" }, { "internalType": "uint256", "name": "numTokens", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "delegate", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "tokenOwner", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const newInstance = new ethers.Contract(tokenAddress, abi, provider);
+        const connectWithSinger = newInstance.connect(signer);
+
+        async function getBalance() {
+            $('#lblBalanceResult').text("Please Wait...");
+            address = $('#txtBalance').val();
+            let balance = await connectWithSinger.balanceOf(address);
+            globalBalance = balance;
+            if (balance > 0) {
+                $('#lblBalanceResult').text(ethers.utils.formatUnits(balance, 18));
+            } else {
+                $('#lblBalanceResult').text(balance);
+            }
+        }
+        function transfer() {
+            $('#transferResult1').text("");
+
+            var recieverAddress = $('#txtReciever').val();
+            var amount = parseInt($('#txtTransferAmount').val());
+            try {
+                connectWithSinger.transfer(recieverAddress, BigInt(amount * 1000000000000000000));
+                connectWithSinger.on("Transfer", function (error, result) {
+                    if (result) {
+                        $('#lblTransferResult').text("Transfer submitted");
+                    } else {
+                        $('#lblTransferResult').text("Transfer Failed");
+                    }
+                });
+            } catch (error) {
+                $('#lblTransferResult').text(error);
+            }
+        }
+        function approve() {
+            $('#approve').text("");
+            var senderAddress = $('#txtApproveAddress').val();
+            var amount = parseInt($('#txtApproveAmount').val());
+            try {
+                connectWithSinger.approve(senderAddress, BigInt(amount * 1000000000000000000));
+                connectWithSinger.on("Approval", function (error, result) {
+                    $('#lblApprove').text("Approve submitted");
+                });
+            } catch (error) {
+                $('#lblApprove').text(error);
+            }
+        }
+        async function allowance() {
+            $('#lblAllowance').text("ٌPlease wait ...");
+            var owner = $('#txtAllowanceOwner').val();
+            var spender = $('#txtAllowanceSpender').val();
+            try {
+                var amount = await connectWithSinger.allowance(owner, spender);
+                amount = ethers.utils.formatUnits(amount, 18);
+                $('#lblAllowance').text(amount);
+            } catch (error) {
+                $('#lblAllowance').text(error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>ADR1 Management (Binance)</h1>
+    <div>
+        <label>0x6A839d9fc314f5b8f9D849916BA898c1590A003D</label><br/>
+        <label>0xaC074051e6bf884682655Cc4f450A3c3312Dddbd</label><br/>
+        <label>0x3424B1FB1d455aDB03C02CC5C78F14641C07ebc3</label>
+    </div>
+    <div>
+        <label>Balance of:</label>
+        <input type="text" id="txtBalance" class="textSize" placeholder="Address" />
+        <button class="btn btn-info" onclick="getBalance()">Get Balance</button>
+        <label id="lblBalanceResult"> </label>
+    </div>
+    <div class="back">
+        <label>Transfer from this account:</label>
+        <input type="text" id="txtReciever" class="textSize" placeholder="Reciever address" />
+        <input type="text" id="txtTransferAmount" placeholder="amount" />
+        <button class="btn btn-success" onclick="transfer()">Transfer</button>
+        <label id="lblTransferResult"> </label>
+    </div>
+    <div>
+        <label>Approve by scender:</label>
+        <input type="text" id="txtApproveAddress" class="textSize" placeholder="Spender address" />
+        <input type="text" id="txtApproveAmount" placeholder="amount" />
+        <button class="btn btn-success" onclick="approve()">Approve</button>
+        <label id="lblApprove"> </label><p></p>
+
+        <label>Allowance:</label>
+        <input type="text" id="txtAllowanceOwner" class="textSize" placeholder="Owner address" />
+        <input type="text" id="txtAllowanceSpender" class="textSize" placeholder="Spender address" />
+        <button class="btn btn-info" onclick="allowance()">Allowance</button>
+        <label id="lblAllowance"> </label><br/>
+        <p></p>
+
+    </div>
+    <h2>
+        <a href="index.html" target="_blink">Home</a>
+    </h2>
+</body>
+
+</html>
