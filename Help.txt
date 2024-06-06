@@ -1,0 +1,2 @@
+git config --global user.name dappteacher
+git config --global user.email adelzadeh74@gmail.com
